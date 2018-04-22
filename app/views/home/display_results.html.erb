@@ -1,0 +1,153 @@
+<% content_for :javascript do %>
+  <script type="text/javascript">
+    ShopifyApp.ready(function(){
+      ShopifyApp.Bar.initialize({ title: "Display Results" });
+    });
+  </script>
+<% end %>
+
+<div class="iframe-container Polaris-FormLayout">
+
+<% @orders.each do |order| %>
+  <% if order.gateway == "stripe" %>
+
+<div class="paper-container pagebreak">
+  <div class="header section">
+    <div class="left">
+      <p><strong style="font-size: 1.5em;">Raw Bites Ltd</strong><br />
+      www.rawbites.com.ph<br/>
+      100 Jervois St.<br/>
+      Sheung Wan, Central, Hong Kong<br/>
+      +63 9178392268 (PH)</p>
+    </div>
+
+     <div class="right">
+       <p>Order Date: <%= DateTime.parse(order.processed_at).strftime("%d %b %Y") %><br />
+        <strong>Invoice <%= order.name %></strong>
+      </p>
+    </div>
+  </div>
+
+  <div class="address section">
+    <table class="table-tabular">
+      <thead>
+        <tr>
+          <th>Shipping Address</th>
+          <th>Billing Address</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <% if order.shipping_address %>
+          <td>
+          <p><strong><%= order.shipping_address.name %></strong></p>
+              <% if order.shipping_address.company %>
+                <p><%= order.shipping_address.company %></p>
+              <% end %>
+              <p><%= order.shipping_address.address1 %></p>
+              <p><%= order.shipping_address.city %> <%= order.shipping_address.province_code %> <%= order.shipping_address.zip %></p>
+              <p><%= order.shipping_address.country %></p>
+          </td>
+          <% else %>
+              No shipping address for <%= order.name %>
+          <% end %>
+            <td>
+              <p><strong><%= order.billing_address.name %></strong></p>
+                <% if order.billing_address.company %>
+                  <p><%= order.billing_address.company %></p>
+                <% end %>
+                <p><%= order.billing_address.address1 %></p>
+                <p><%= order.billing_address.city %> <%= order.billing_address.province_code %> <%= order.billing_address.zip %></p>
+                <p><%= order.billing_address.country %></p>
+            </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+ <div class="items section">
+    <h1 class="title">Item Details</h1>
+
+    <table class="table-tabular" style="margin: 0 0 1.5em 0;">
+      <thead>
+        <tr>
+          <th>Quantity</th>
+          <th>Item</th>
+          <th>Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% order.line_items.each do |line_item| %>
+          <tr>
+            <td><%= line_item.quantity %></td>
+            <td><%= line_item.title %></td>
+            <td>₱ <%= line_item.price %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <% if order.transactions.size >= 1 %>
+      <h1 class="title">Transaction Details</h1>
+      <table class="table-tabular" style="margin: 0 0 1.5em 0;">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Kind</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% order.transactions.each do |transaction| %>
+            <tr>
+              <td><%= transaction.gateway %></td>
+              <td>₱ <%= transaction.amount %></td>
+              <td><%= transaction.kind %></td>
+              <td><%= transaction.status %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
+  </div>
+
+  <div class="payments section">
+    <h1 class="title">Payment Details</h1>
+
+    <table class="table-tabular" style="margin: 0 0 1.5em 0;">
+      <tr>
+        <td>Subtotal price:</td>
+        <td>₱ <%= order.subtotal_price %></td>
+      </tr>
+      <% order.discount_codes.each do |discount| %>
+      <tr>
+        <td>Includes discount "<%= discount.code %>"</td>
+        <td>₱ <%= discount.amount %></td>
+      </tr>
+      <% end %>
+      <% unless order.shipping_lines.blank? %>
+        <tr>
+          <td>Shipping:</td>
+          <td>₱ <%= order.shipping_lines.first.price %></td>
+        </tr>
+      <% end %>
+      <tr>
+        <td><strong>Total price:</strong></td>
+        <td><strong>₱ <%= order.total_price %></strong></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="footer section">
+    <% if order.note %>
+      <h1 class="title">Note</h1>
+      <p><%= order.note %></p>
+    <% end %>
+
+    <p>If you have any questions, please send an email to <u>sales@rawbites.com.ph</u></p>
+  </div>
+</div>
+<% end %>
+<% end %>
+

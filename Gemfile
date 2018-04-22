@@ -32,6 +32,9 @@ gem 'jbuilder', '~> 2.5'
 
 gem 'bootstrap', '~> 4.1.0'
 gem 'jquery-rails'
+gem 'jquery-ui-rails'
+
+gem 'simple_form'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development

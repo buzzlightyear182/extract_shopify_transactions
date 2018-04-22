@@ -1,0 +1,180 @@
+<% content_for :javascript do %>
+  <script type="text/javascript">
+    ShopifyApp.ready(function(){
+      ShopifyApp.Bar.initialize({ title: "Display Results" });
+    });
+  </script>
+<% end %>
+
+<table style="margin: 15px;">
+	<thead>
+	</thead>
+	<tbody>
+		<% @orders.each_with_index do |order, i| %>
+			<% if order.gateway == "stripe" %>
+				<tr>
+					<td><%= i %></td>
+					<td><%= order.name %></td>
+					<td><%= order.email %></td>
+					<td><%= order.gateway %></td>
+				</tr>
+			<% end %>
+		<% end %>
+	</tbody>
+</table>
+
+<hr>
+
+<div style="display: block; width: 100%;">
+<p style="float: left; margin: 0 0 1.5em 0; line-height: 1.5em;" >
+  <strong style="font-size: 1.5em;">{{ shop_name }} Ltd</strong><br />
+  {{ shop.domain }}<br/>
+  {{ shop.address }}<br/>
+  {{ shop.address2}}, {{ shop.city}}, {{ shop.country }}<br/>
+  {{ shop.phone }}<br>
+</p>
+
+<p style="float: right; text-align: right; margin: 0;">
+ Order Date: {{ processed_at | date: "%m/%d/%y" }}<br />
+  <strong>Invoice {{ order_name }}</strong>
+</p>
+</div>
+
+<table class="table-tabular" style="margin: 0 0 1.5em 0;">
+  <thead>
+    <tr>
+      <th>Shipping Address</th>
+      <th>Billing Address</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td>
+        <strong>{{ shipping_address.name }}</strong><br/>
+            {% if shipping_address.company %}
+              {{ shipping_address.company }}<br/>
+            {% endif %}
+            {{ shipping_address.street }}<br/>
+            {{ shipping_address.city }}
+            {{ shipping_address.province_code }}
+            {{ shipping_address.zip | upcase }}<br/>
+            {{ shipping_address.country }}
+        </td>
+        <td><strong>{{ billing_address.name }}</strong><br/>
+            {% if billing_address.company %}
+              {{ billing_address.company }}<br/>
+            {% endif %}
+            {{ billing_address.street }}<br/>
+            {{ billing_address.city }}
+            {{ billing_address.province_code }}
+            {{ billing_address.zip | upcase }}<br/>
+            {{ billing_address.country }}
+        </td>
+  </tbody>
+</table>
+
+<h3 style="margin: 0 0 1em 0;">Item Details</h3>
+
+<table class="table-tabular" style="margin: 0 0 1.5em 0;">
+  <thead>
+    <tr>
+      <th>Quantity</th>
+      <th>Item</th>
+      {% if show_line_item_taxes %}
+      <th>Taxes</th>
+      {% endif %}
+      <th>Price</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for line_item in line_items %}
+      <tr>
+        <td>{{ line_item.quantity }} x</td>
+        <td>{{ line_item.title }}</td>
+        {% if line_item.tax_lines %}
+          <td>
+            {% for tax_line in line_item.tax_lines %}
+              {{ tax_line.price | money }} {{ tax_line.title }}<br/>
+            {% endfor %}
+          </td>
+        {% endif %}
+        <td>
+          {% if line_item.original_price != line_item.price %}
+            <s>{{ line_item.original_price | money }}</s>
+          {% endif %}
+          ₱ {{ line_item.price | money }}
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if transactions.size >= 1 %}
+  <h3 style="margin: 0 0 1em 0;">Transaction Details</h3>
+  <table class="table-tabular" style="margin: 0 0 1.5em 0;">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Amount</th>
+        <th>Kind</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for transaction in transactions %}
+        <tr>
+          <td>{{ transaction.gateway | capitalize }}</td>
+          <td>₱ {{ transaction.amount | money }}</td>
+          <td>{{ transaction.kind }}</td>
+          <td>{{ transaction.status }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endif %}
+
+<h3 style="margin: 0 0 1em 0;">Payment Details</h3>
+
+<table class="table-tabular" style="margin: 0 0 1.5em 0;">
+  <tr>
+    <td>Subtotal price:</td>
+    <td>₱ {{ subtotal_price | money }}</td>
+  </tr>
+  {% for discount in discounts %}
+  <tr>
+    <td>Includes discount "{{ discount.code }}"</td>
+    <td>₱ {{ discount.savings | money }}</td>
+  </tr>
+  {% endfor %}
+  <tr>
+    <td>Total tax:</td>
+    <td>₱ {{ tax_price | money }}</td>
+  </tr>
+  {% if shipping_address %}
+    <tr>
+      <td>Shipping:</td>
+      <td>₱ {{ shipping_price | money }}</td>
+    </tr>
+  {% endif %}
+  <tr>
+    <td><strong>Total price:</strong></td>
+    <td><strong>₱ {{ total_price | money }}</strong></td>
+  </tr>
+  {% if total_paid != total_price %}
+    <tr>
+      <td><strong>Total paid:</strong></td>
+      <td><strong>₱ {{ total_paid | money }}</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Outstanding Amount:</strong></td>
+      <td><strong>₱ {{ total_price | minus: total_paid | money }}</strong></td>
+    </tr>
+  {% endif %}
+</table>
+
+{% if note %}
+  <h3 style="margin: 0 0 1em 0;">Note</h3>
+  <p>{{ note }}</p>
+{% endif %}
+
+<p>If you have any questions, please send an email to <u>sales@rawbites.com.ph</u></p>

@@ -1,28 +1,47 @@
 <% content_for :javascript do %>
   <script type="text/javascript">
     ShopifyApp.ready(function(){
-      ShopifyApp.Bar.initialize({ title: "Home" });
+      ShopifyApp.Bar.initialize({ title: "Filter by Date" });
     });
   </script>
 <% end %>
-<h2>Products</h2>
 
-<ul>
-  <% @products.each do |product| %>
-    <li><%= link_to product.title, "https://#{@shop_session.url}/admin/products/#{product.id}", target: "_top" %></li>
-  <% end %>
-</ul>
-
-<hr>
-
-<h2>Webhooks</h2>
-
-<% if @webhooks.present? %>
-  <ul>
-    <% @webhooks.each do |webhook| %>
-      <li><%= webhook.topic %> : <%= webhook.address %></li>
-    <% end %>
-  </ul>
-<% else %>
-  <p>This app has not created any webhooks for this Shop. Add webhooks to your ShopifyApp initializer if you need webhooks</p>
+<div class="Polaris-FormLayout">
+<%= simple_form_for(@orders, method: :post, url: :display_results) do |f| %>
+  <div class="Polaris-FormLayout__Item">
+    <div class="">
+      <div class="Polaris-Labelled__LabelWrapper">
+        <div class="Polaris-Label"><label id="TextField5Label" for="TextField5" class="Polaris-Label__Text">Beginning Date</label></div>
+      </div>
+      <div class="Polaris-TextField">
+        <%= f.input :created_at_min, as: :string, label: false,
+                        input_html: {
+                        class: "form-control datepicker-input Polaris-TextField__Input",
+                        'data-provide': "datepicker",
+                        style: "width: 250px;" } %>
+        <div class="Polaris-TextField__Backdrop"></div>
+      </div>
+    </div>
+  </div>
+  <div class="Polaris-FormLayout__Item">
+    <div class="">
+      <div class="Polaris-Labelled__LabelWrapper">
+        <div class="Polaris-Label"><label id="TextField6Label" for="TextField6" class="Polaris-Label__Text">Ending Date</label></div>
+      </div>
+      <div class="Polaris-TextField">
+        <%= f.input :created_at_max, as: :string, label: false,
+                        input_html: {
+                        class: "form-control datepicker-input Polaris-TextField__Input",
+                        'data-provide': "datepicker",
+                        style: "width: 250px;" } %>
+        <div class="Polaris-TextField__Backdrop"></div>
+      </div>
+    </div>
+  </div>
+  <div class="Polaris-FormLayout__Item">
+    <div class="">
+      <button type="submit" class="Polaris-Button"><span class="Polaris-Button__Content"><span>Filter</span></span></button>
+    </div>
+  </div>
 <% end %>
+</div>
