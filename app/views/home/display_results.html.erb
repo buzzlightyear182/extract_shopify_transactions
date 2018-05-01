@@ -3,8 +3,82 @@
     ShopifyApp.ready(function(){
       ShopifyApp.Bar.initialize({ title: "Display Results" });
     });
-  </script>
+
+  ShopifyApp.print = function(){
+    window.print();
+  }
+
+  ShopifyApp.ready(function(){
+    ShopifyApp.Bar.initialize({
+      buttons: {
+        primary: {
+          label: 'Print',
+          print: true
+        }
+      }
+    });
+  });
+</script>
 <% end %>
+<style>
+@media screen {
+  .iframe-container {
+    margin: 10px;
+  }
+
+  .paper-container {
+    width: 612px;
+    background: white;
+  }
+}
+
+@media print {
+  .paper-container {
+    width: 800px;
+  }
+  body { font-family: 'Helvetica', sans-serif;}
+  p { margin-top: 0px; margin-bottom: 2px; padding: 0px; }
+}
+
+.paper-container {
+    display: block; 
+    padding: 15px 20px;
+    margin: 20px 10px;
+  }
+
+.pagebreak {
+  page-break-after: always !important;
+}
+
+.section {
+  margin: 20px 0px;
+}
+
+.left {
+  width: 49%;
+  display: inline-block;
+}
+
+.right {
+  width: 50%;
+  text-align: right;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.title {
+  font-size: 1.2em;
+  margin-bottom: 0.6em;
+  font-weight: 600;
+  color: #9ec156;
+}
+
+th {text-align: left;}
+td {padding: 5px;}
+table {width: 100%; border-collapse: collapse;}
+thead th {border-bottom: 1px solid #9ec156;}
+
+</style>
 
 <div class="iframe-container Polaris-FormLayout">
 
@@ -14,11 +88,11 @@
 <div class="paper-container pagebreak">
   <div class="header section">
     <div class="left">
-      <p><strong style="font-size: 1.5em;">Raw Bites Ltd</strong><br />
-      www.rawbites.com.ph<br/>
-      100 Jervois St.<br/>
-      Sheung Wan, Central, Hong Kong<br/>
-      +63 9178392268 (PH)</p>
+      <p><strong style="font-size: 1.5em;">Raw Bites Ltd</strong></p>
+      <p>www.rawbites.com.ph</p>
+      <p>100 Jervois St.</p>
+      <p>Sheung Wan, Central, Hong Kong</p>
+      <p>+63 9178392268 (PH)</p>
     </div>
 
      <div class="right">
@@ -29,7 +103,7 @@
   </div>
 
   <div class="address section">
-    <table class="table-tabular">
+    <table class="table-tabular" style="margin: 0 0 1.5em 0;">
       <thead>
         <tr>
           <th>Shipping Address</th>
@@ -38,7 +112,7 @@
       </thead>
       <tbody>
         <tr>
-          <% if order.shipping_address %>
+          <% unless order.shipping_address.blank? %>
           <td>
           <p><strong><%= order.shipping_address.name %></strong></p>
               <% if order.shipping_address.company %>
@@ -48,18 +122,16 @@
               <p><%= order.shipping_address.city %> <%= order.shipping_address.province_code %> <%= order.shipping_address.zip %></p>
               <p><%= order.shipping_address.country %></p>
           </td>
-          <% else %>
-              No shipping address for <%= order.name %>
           <% end %>
-            <td>
-              <p><strong><%= order.billing_address.name %></strong></p>
-                <% if order.billing_address.company %>
-                  <p><%= order.billing_address.company %></p>
-                <% end %>
-                <p><%= order.billing_address.address1 %></p>
-                <p><%= order.billing_address.city %> <%= order.billing_address.province_code %> <%= order.billing_address.zip %></p>
-                <p><%= order.billing_address.country %></p>
-            </td>
+          <td>
+            <p><strong><%= order.billing_address.name %></strong></p>
+              <% if order.billing_address.company %>
+                <p><%= order.billing_address.company %></p>
+              <% end %>
+              <p><%= order.billing_address.address1 %></p>
+              <p><%= order.billing_address.city %> <%= order.billing_address.province_code %> <%= order.billing_address.zip %></p>
+              <p><%= order.billing_address.country %></p>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -87,29 +159,27 @@
       </tbody>
     </table>
 
-    <% if order.transactions.size >= 1 %>
-      <h1 class="title">Transaction Details</h1>
-      <table class="table-tabular" style="margin: 0 0 1.5em 0;">
-        <thead>
+    <h1 class="title">Transaction Details</h1>
+    <table class="table-tabular" style="margin: 0 0 1.5em 0;">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Amount</th>
+          <th>Kind</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% order.transactions.each do |transaction| %>
           <tr>
-            <th>Type</th>
-            <th>Amount</th>
-            <th>Kind</th>
-            <th>Status</th>
+            <td><%= transaction.gateway %></td>
+            <td>₱ <%= transaction.amount %></td>
+            <td><%= transaction.kind %></td>
+            <td><%= transaction.status %></td>
           </tr>
-        </thead>
-        <tbody>
-          <% order.transactions.each do |transaction| %>
-            <tr>
-              <td><%= transaction.gateway %></td>
-              <td>₱ <%= transaction.amount %></td>
-              <td><%= transaction.kind %></td>
-              <td><%= transaction.status %></td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    <% end %>
+        <% end %>
+      </tbody>
+    </table>
   </div>
 
   <div class="payments section">
