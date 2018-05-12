@@ -6,7 +6,7 @@ class HomeController < ShopifyApp::AuthenticatedController
   def display_results
     beginning_date = DateTime.parse("#{params["shopify_api_order"]["created_at_min"]} 00:00:00 +0800")
     ending_date = DateTime.parse("#{params["shopify_api_order"]["created_at_max"]} 00:00:00 +0800")
-  	@orders = ShopifyAPI::Order.where(created_at_min: beginning_date, created_at_max: ending_date, status: "closed", limit: 250, gateway: "stripe")
+  	@orders = ShopifyAPI::Order.where(created_at_min: beginning_date, created_at_max: ending_date, status: "closed", , source_name: ["web", "457101"], limit: 250, gateway: "stripe")
   	render 'display_results'
   end
 
