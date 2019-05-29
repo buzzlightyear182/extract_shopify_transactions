@@ -3,6 +3,7 @@ Rails.application.config.middleware.use OmniAuth::Builder do
            ShopifyApp.configuration.api_key,
            ShopifyApp.configuration.secret,
            scope: ShopifyApp.configuration.scope,
+           callback_path: '/nested/auth/shopify/callback' #Delete if not working
            setup: lambda { |env|
              strategy = env['omniauth.strategy']
 

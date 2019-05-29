@@ -27,5 +27,6 @@ module ExtractTransactions
 
     # Don't generate system test files.
     config.generators.system_tests = nil
+    config.web_console.whitelisted_ips = '120.29.118.252'
   end
 end
